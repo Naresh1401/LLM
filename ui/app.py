@@ -1,5 +1,6 @@
 """
 ui/app.py — Streamlit UI for Financial LLM Assistant
+Premium glassmorphism design
 End-to-end financial assistant: Bytewax → QLoRA (Falcon-7B) → LangChain + Qdrant
 """
 import streamlit as st
@@ -10,39 +11,157 @@ API_URL = "http://localhost:8000"
 
 st.set_page_config(page_title="Financial LLM Assistant", page_icon="💰", layout="wide")
 
+# ── Premium CSS ───────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-.module-card {
-    background: #f8f9fa; border-radius: 8px;
-    padding: 16px; margin: 8px 0;
-    border-left: 4px solid #007bff;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+.stApp {
+    background: linear-gradient(135deg, #0a0e17 0%, #1a1c2e 40%, #0d1520 100%);
 }
-.module-streaming { border-left-color: #28a745; }
-.module-dataset   { border-left-color: #fd7e14; }
-.module-training  { border-left-color: #dc3545; }
-.module-bot       { border-left-color: #6f42c1; }
+html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+.block-container { padding-top: 2rem; }
+header[data-testid="stHeader"] { background: transparent; }
+
+section[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #0a0e17 0%, #080b12 100%) !important;
+    border-right: 1px solid rgba(245,158,11,0.1);
+}
+section[data-testid="stSidebar"] .stMarkdown { color: #fde68a; }
+
+.hero {
+    text-align: center; padding: 40px 20px 20px 20px;
+}
+.hero h1 {
+    font-size: 3rem; font-weight: 800;
+    background: linear-gradient(135deg, #f59e0b, #ef4444, #f97316);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 8px; letter-spacing: -1px;
+}
+.hero p { color: #92785a; font-size: 1.15rem; font-weight: 300; }
+
+.glass {
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(245,158,11,0.1);
+    border-radius: 16px; padding: 24px; margin: 12px 0; color: #fde68a;
+}
+
+.metric-glass {
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(245,158,11,0.1);
+    border-radius: 14px; padding: 20px; text-align: center;
+}
+.metric-glass .value {
+    font-size: 1.8rem; font-weight: 700;
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.metric-glass .label { color: #92785a; font-size: 0.85rem; margin-top: 4px; }
+
 .chat-user {
-    background: #e3f2fd; border-radius: 12px;
-    padding: 10px 16px; margin: 6px 0;
-    text-align: right;
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.15);
+    border-radius: 16px 16px 4px 16px;
+    padding: 14px 20px; margin: 10px 0 10px 40px;
+    color: #fde68a; text-align: right;
 }
 .chat-bot {
-    background: #f1f8e9; border-radius: 12px;
-    padding: 10px 16px; margin: 6px 0;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px 16px 16px 4px;
+    padding: 14px 20px; margin: 10px 40px 10px 0;
+    color: #e5e7eb; line-height: 1.7;
 }
+
 .mode-badge {
-    display: inline-block; padding: 2px 10px; border-radius: 12px;
-    font-size: 0.8em; font-weight: bold;
+    display: inline-block; padding: 4px 14px; border-radius: 20px;
+    font-size: 0.8em; font-weight: 700; letter-spacing: 0.5px;
 }
-.mode-live { background: #d4edda; color: #155724; }
-.mode-demo { background: #fff3cd; color: #856404; }
+.mode-live {
+    background: rgba(52,211,153,0.15); color: #34d399;
+    border: 1px solid rgba(52,211,153,0.3);
+}
+.mode-demo {
+    background: rgba(245,158,11,0.15); color: #fbbf24;
+    border: 1px solid rgba(245,158,11,0.3);
+}
+
+.module-card {
+    background: rgba(255,255,255,0.03);
+    border-radius: 12px; padding: 20px; margin: 10px 0;
+    border-left: 4px solid rgba(245,158,11,0.4);
+    color: #e5e7eb; transition: transform 0.2s ease;
+}
+.module-card:hover { transform: translateX(4px); }
+.module-streaming { border-left-color: #34d399; }
+.module-dataset   { border-left-color: #f59e0b; }
+.module-training  { border-left-color: #ef4444; }
+.module-bot       { border-left-color: #8b5cf6; }
+
+.pipeline-arrow {
+    text-align: center; color: #92785a; font-size: 1.5rem;
+    padding: 4px 0;
+}
+
+.example-q {
+    background: rgba(245,158,11,0.05);
+    border: 1px solid rgba(245,158,11,0.12);
+    border-radius: 10px; padding: 10px 14px; margin: 4px 0;
+    color: #fbbf24; font-size: 0.9em;
+    transition: all 0.2s ease;
+}
+.example-q:hover {
+    background: rgba(245,158,11,0.1);
+    transform: translateX(4px);
+}
+
+/* Tabs */
+.stTabs [data-baseweb="tab-list"] {
+    background: rgba(255,255,255,0.02); border-radius: 12px; padding: 4px; gap: 4px;
+}
+.stTabs [data-baseweb="tab"] { border-radius: 8px; color: #92785a; font-weight: 500; }
+.stTabs [aria-selected="true"] {
+    background: rgba(245,158,11,0.15) !important; color: #fbbf24 !important;
+}
+
+.stButton > button[kind="primary"] {
+    background: linear-gradient(135deg, #f59e0b, #ef4444) !important;
+    border: none !important; border-radius: 10px !important;
+    color: #0a0e17 !important; font-weight: 700 !important;
+    transition: all 0.3s ease !important;
+}
+.stButton > button[kind="primary"]:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(245,158,11,0.3) !important;
+}
+
+.stTextArea textarea, .stTextInput input {
+    background: rgba(255,255,255,0.03) !important;
+    border: 1px solid rgba(245,158,11,0.12) !important;
+    border-radius: 10px !important; color: #fde68a !important;
+}
+
+.streamlit-expanderHeader {
+    background: rgba(255,255,255,0.03) !important;
+    border-radius: 8px !important; color: #92785a !important;
+}
 </style>
+""", unsafe_allow_html=True)
+
+# ── Hero ──────────────────────────────────────────────────────────────────
+st.markdown("""
+<div class="hero">
+    <h1>💰 Financial LLM Assistant</h1>
+    <p>End-to-end real-time financial AI — Bytewax streaming → QLoRA fine-tuning → LangChain + Qdrant RAG</p>
+</div>
 """, unsafe_allow_html=True)
 
 # ── Sidebar ───────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.title("💰 Financial LLM")
-    st.caption("End-to-end Real-time Financial Assistant")
+    st.markdown("### 💰 System Status")
+    st.caption("Financial AI pipeline monitor")
     st.divider()
 
     try:
@@ -70,17 +189,16 @@ with st.sidebar:
         value="I am a 28 year old software engineer looking to grow my savings.",
         height=80,
     )
+    st.divider()
+    st.caption("Built with OpenAI · Falcon-7B · Qdrant · Bytewax")
 
 tab_chat, tab_arch, tab_data = st.tabs(["💬 Chat", "🏗️ Architecture", "📊 Training Data"])
 
 # ── CHAT TAB ──────────────────────────────────────────────────────────────
 with tab_chat:
-    st.header("Ask Your Financial Assistant")
-
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
 
-    # Display chat history
     for msg in st.session_state.chat_history:
         if msg["role"] == "user":
             st.markdown(f'<div class="chat-user">🧑 {msg["content"]}</div>', unsafe_allow_html=True)
@@ -128,9 +246,9 @@ with tab_chat:
         else:
             st.error(f"Error: {resp.text}")
 
-    # Example questions
-    st.divider()
-    st.markdown("**💡 Try these questions:**")
+    st.markdown("---")
+    st.markdown('<div class="glass">', unsafe_allow_html=True)
+    st.markdown("#### 💡 Example Questions")
     examples = [
         "What's your opinion on investing in startup companies?",
         "How should I budget my $80k salary?",
@@ -142,12 +260,14 @@ with tab_chat:
     cols = st.columns(2)
     for i, ex in enumerate(examples):
         with cols[i % 2]:
-            st.caption(f"• {ex}")
+            st.markdown(f'<div class="example-q">• {ex}</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ── ARCHITECTURE TAB ──────────────────────────────────────────────────────
 with tab_arch:
-    st.header("System Architecture")
-    st.markdown("### End-to-End Financial Assistant Pipeline")
+    st.markdown('<div class="glass">', unsafe_allow_html=True)
+    st.markdown("#### 🏗️ End-to-End Financial Assistant Pipeline")
+    st.markdown('</div>', unsafe_allow_html=True)
 
     try:
         arch = requests.get(f"{API_URL}/architecture", timeout=5).json()
@@ -164,30 +284,35 @@ with tab_arch:
         st.markdown(
             f'<div class="module-card {cls}">'
             f'<b>{icon} {mod["name"]}</b><br>'
-            f'<code>{mod["tech"]}</code><br>'
-            f'{mod["desc"]}'
+            f'<code style="color:#f59e0b">{mod["tech"]}</code><br>'
+            f'<span style="color:#9ca3af">{mod["desc"]}</span>'
             f'</div>',
             unsafe_allow_html=True,
         )
         if i < len(modules) - 1:
-            st.markdown("<center>⬇️</center>", unsafe_allow_html=True)
+            st.markdown('<div class="pipeline-arrow">⬇️</div>', unsafe_allow_html=True)
 
-    st.divider()
-    st.markdown("### Data Flow")
-    st.code(arch.get("flow", "News → Qdrant → Q&A Generation → QLoRA Training → LangChain Bot → Gradio UI"), language=None)
+    st.markdown("---")
+    st.markdown('<div class="glass">', unsafe_allow_html=True)
+    st.markdown("#### Data Flow")
+    st.code(arch.get("flow", "News → Qdrant → Q&A Generation → QLoRA Training → LangChain Bot → Gradio UI") if modules else "News → Qdrant → Q&A Generation → QLoRA Training → LangChain Bot → UI", language=None)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    st.divider()
-    st.markdown("### Prompt Template (Falcon)")
+    st.markdown('<div class="glass">', unsafe_allow_html=True)
+    st.markdown("#### Prompt Template (Falcon)")
     st.code(""">>INTRODUCTION<< You are a helpful assistant, with financial expertise.
 >>DOMAIN<< {user_context}
 {news_context}
 >>SUMMARY<< {chat_history}
 >>QUESTION<< {question}
 >>ANSWER<< {answer}<|endoftext|>""", language=None)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ── TRAINING DATA TAB ────────────────────────────────────────────────────
 with tab_data:
-    st.header("Training Data & Fine-tuning")
+    st.markdown('<div class="glass">', unsafe_allow_html=True)
+    st.markdown("#### 📊 Training Data & Fine-tuning")
+    st.markdown('</div>', unsafe_allow_html=True)
 
     try:
         sample = requests.get(f"{API_URL}/sample-data", timeout=5).json()
@@ -196,22 +321,42 @@ with tab_data:
 
     if sample:
         col1, col2, col3 = st.columns(3)
-        col1.metric("Template", sample.get("template", "Falcon"))
-        col2.metric("Training Samples", sample.get("total_samples", 0))
-        col3.metric("Method", "QLoRA (4-bit)")
+        with col1:
+            st.markdown(
+                f'<div class="metric-glass"><div class="value" style="-webkit-text-fill-color:unset;'
+                f'color:#fbbf24;font-size:1.3rem">{sample.get("template", "Falcon")}</div>'
+                f'<div class="label">Template</div></div>',
+                unsafe_allow_html=True
+            )
+        with col2:
+            st.markdown(
+                f'<div class="metric-glass"><div class="value">{sample.get("total_samples", 0)}</div>'
+                f'<div class="label">Training Samples</div></div>',
+                unsafe_allow_html=True
+            )
+        with col3:
+            st.markdown(
+                '<div class="metric-glass"><div class="value" style="-webkit-text-fill-color:unset;'
+                'color:#ef4444;font-size:1.3rem">QLoRA 4-bit</div>'
+                '<div class="label">Method</div></div>',
+                unsafe_allow_html=True
+            )
 
-        st.markdown("### Sample Training Entry")
         s = sample.get("sample", {})
+        st.markdown('<div class="glass">', unsafe_allow_html=True)
+        st.markdown("**Sample Training Entry**")
         st.markdown(f"**Instruction:** {s.get('instruction', '')}")
         st.markdown(f"**User Context:** {s.get('user_context', '')}")
         st.markdown(f"**News Context:** {s.get('news_context', '')}")
         st.info(f"**Answer:** {s.get('answer', '')}")
+        st.markdown('</div>', unsafe_allow_html=True)
 
         with st.expander("📋 Raw JSON"):
             st.json(sample)
 
-    st.divider()
-    st.markdown("### Fine-tuning Configuration")
+    st.markdown("---")
+    st.markdown('<div class="glass">', unsafe_allow_html=True)
+    st.markdown("#### Fine-tuning Configuration")
     config = {
         "base_model": "tiiuae/falcon-7b",
         "method": "QLoRA (4-bit quantization)",
@@ -225,3 +370,4 @@ with tab_data:
         "warmup_steps": 50,
     }
     st.json(config)
+    st.markdown('</div>', unsafe_allow_html=True)
