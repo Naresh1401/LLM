@@ -1,5 +1,7 @@
 # LLM Financial Assistant — End-to-End Production Pipeline
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Render-f59e0b?style=for-the-badge&logo=render)](https://financial-llm-assistant.onrender.com) [![GitHub](https://img.shields.io/badge/GitHub-Naresh1401-181717?style=for-the-badge&logo=github)](https://github.com/Naresh1401/LLM)
+
 A complete LLM system for financial advice — from real-time news ingestion and embedding, through QLoRA fine-tuning, to a deployed chatbot with RAG-augmented responses.
 
 ## Architecture
