@@ -28,7 +28,7 @@ jobs:
           - dockerfile: Dockerfile
             context: .
           - dockerfile: modules/streaming_pipeline/deploy/Dockerfile
-            context: modules/streaming_pipeline/deploy
+            context: modules/streaming_pipeline
     uses: Naresh1401/github-cicd-workflows/.github/workflows/container.yml@v1
     with:
       dockerfile: ${{ matrix.dockerfile }}
