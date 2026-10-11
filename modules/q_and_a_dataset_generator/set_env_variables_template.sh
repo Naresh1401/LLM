@@ -1,3 +1,5 @@
+# shellcheck shell=bash
+# Load with: source set_env_variables_template.sh
 # open a Paper account at https://alpaca.markets/ and get these 2 values
 export ALPACA_API_KEY="YOUR_ALPACA_API_KEY"
 export ALPACA_API_SECRET="YOUR_ALPACA_API_SECRET"
